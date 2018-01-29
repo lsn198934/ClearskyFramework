@@ -9,7 +9,7 @@
 
 using UnityEngine;
 using System.IO;
-using System.Collections;
+using System.Collections.Generic;
 
 
 namespace Clearsky.framework.data
@@ -27,10 +27,20 @@ namespace Clearsky.framework.data
                 return null;
             }
 
-            File.ReadAllLines(filePath);
+            List<string> list = new List<string>();
+            using (StreamReader streamReader = new StreamReader(filePath))
+            {
+                string item;
+                while ((item = streamReader.ReadLine()) != null)
+                {
+                    list.Add(item);
+                }
+
+                streamReader.Close();
+            }
 
             CsvTable table = new CsvTable();
-
+            table.LoadData(list.ToArray());
             return table;
         }
 
@@ -93,6 +103,7 @@ namespace Clearsky.framework.data
             {
                 headers[headerIdx] = new Header();
 
+                headers[headerIdx].name = names[headerIdx];
 
                 //type 
                 string type = types[headerIdx].ToLower();
@@ -118,7 +129,6 @@ namespace Clearsky.framework.data
                     headers[headerIdx].type = ValueType.TypeUnkown;
                 }
 
-
                 headers[headerIdx].desc = desc[headerIdx];
 
             }
@@ -129,12 +139,13 @@ namespace Clearsky.framework.data
 
             data = new string[rowLength, colLenght];
 
-            for (int rowIdx = HEADER_LINE_COUNT; rowIdx < rawDataLines.Length; rowIdx++)
+            for (int rowIdx = 0; rowIdx < rowLength - 1; rowIdx++)
             {
-                string[] rawData = rawDataLines[rowIdx].Split(SEPERATE_CHAR);
-                for (int colIdx = 0; colIdx < rawData.Length; colIdx++)
+                string[] rawData = rawDataLines[HEADER_LINE_COUNT + rowIdx].Split(SEPERATE_CHAR);
+
+                for (int colIdx = 0; colIdx < colLenght - 1; colIdx++)
                 {
-                    if (colIdx < rawData.Length)
+                    if (colIdx < rawData.Length - 1)
                     {
                         data[rowIdx, colIdx] = rawData[colIdx];
                     }
@@ -144,6 +155,12 @@ namespace Clearsky.framework.data
                     }
                 }
             }
+        }
+
+
+        public Header[] Headers
+        {
+            get { return headers; }
         }
 
         public string this[int row, int col]
@@ -158,18 +175,24 @@ namespace Clearsky.framework.data
             }
         }
 
-        public int GetInt(int row, int col)
+        public int GetInt(int row, int col, int defaultValue = -1)
         {
+            if (headers[col].type != ValueType.TypeInteger) return defaultValue;
+
             return int.Parse(data[row, col]);
         }
 
-        public long GetLong(int row, int col)
+        public long GetLong(int row, int col, long defaultValue = -1L)
         {
+            if (headers[col].type != ValueType.TypeLong) return defaultValue;
+
             return long.Parse(data[row, col]);
         }
 
-        public float GetFloat(int row, int col)
+        public float GetFloat(int row, int col, float defaultValue = -1f)
         {
+            if (headers[col].type != ValueType.TypeFloat) return defaultValue;
+
             return float.Parse(data[row, col]);
         }
     }
