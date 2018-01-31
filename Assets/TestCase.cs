@@ -22,7 +22,11 @@ public class TestCase : MonoBehaviour {
             Debug.Log(System.DateTime.Now.Millisecond);
             CsvTable table = CsvTable.FromFile(GlobalConfig.GAME_DATA_PATH + "/Instance.csv");
             Debug.Log(System.DateTime.Now.Millisecond);
-            Debug.Log(table.GetLong(7, 1));
+            int index=table.GetColumnIndex("ID");
+            Debug.LogWarning(index);
+
+            CsvTable.SaveFile(table, GlobalConfig.GAME_DATA_PATH + "/Instances.csv");
+            
         }
     }
 }

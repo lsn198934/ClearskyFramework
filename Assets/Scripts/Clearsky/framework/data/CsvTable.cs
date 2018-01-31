@@ -2,7 +2,7 @@
 /// 2017.01.27 Clearsky Game Framework
 /// 
 /// parsing CSV 
-/// Here we define the first three line of the CSV data sheet as the headers
+/// Here we define the first three lines of the CSV data sheet as the headers
 ///  1.names of the data field
 ///  2.value types of the data field
 ///  3.description
@@ -10,6 +10,7 @@
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
+using System.Text;
 
 
 namespace Clearsky.framework.data
@@ -44,6 +45,21 @@ namespace Clearsky.framework.data
             return table;
         }
 
+        public static void SaveFile(CsvTable table, string filePath) 
+        {
+            string[] lines=table.SaveToData();
+            using (StreamWriter streamWriter = new StreamWriter(filePath)) 
+            { 
+                int idx=0;
+                while(idx<lines.Length)
+                {
+                    streamWriter.WriteLine(lines[idx++]);
+                }
+                streamWriter.Flush();
+                streamWriter.Close();
+            }
+            
+        }
 
         #endregion
 
@@ -139,11 +155,11 @@ namespace Clearsky.framework.data
 
             data = new string[rowLength, colLenght];
 
-            for (int rowIdx = 0; rowIdx < rowLength - 1; rowIdx++)
+            for (int rowIdx = 0; rowIdx < rowLength; rowIdx++)
             {
                 string[] rawData = rawDataLines[HEADER_LINE_COUNT + rowIdx].Split(SEPERATE_CHAR);
 
-                for (int colIdx = 0; colIdx < colLenght - 1; colIdx++)
+                for (int colIdx = 0; colIdx < colLenght; colIdx++)
                 {
                     if (colIdx < rawData.Length - 1)
                     {
@@ -158,10 +174,70 @@ namespace Clearsky.framework.data
         }
 
 
+        public string[] SaveToData()
+        {
+            List<string> lines = new List<string>();
+            StringBuilder sb_name = new StringBuilder();
+            StringBuilder sb_type = new StringBuilder();
+            StringBuilder sb_desc = new StringBuilder();
+            for (int i = 0; i < headers.Length; i++)
+            {
+                sb_name.Append(headers[i].name).Append(",");
+                switch (headers[i].type)
+                {
+                    case ValueType.TypeFloat:
+                        sb_type.Append("float").Append(",");
+                        break;
+                    case ValueType.TypeInteger:
+                        sb_type.Append("int").Append(",");
+                        break;
+                    case ValueType.TypeLong:
+                        sb_type.Append("long").Append(",");
+                        break;
+                    case ValueType.TypeUnkown:
+                    case ValueType.TypeString:
+                    default:
+                        sb_type.Append("string").Append(",");
+                        break;
+                }
+                sb_desc.Append(headers[i].desc).Append(",");
+            }
+
+            lines.Add(sb_name.ToString().TrimEnd(','));
+            lines.Add(sb_type.ToString().TrimEnd(','));
+            lines.Add(sb_desc.ToString().TrimEnd(','));
+
+
+            long rowCount = data.GetLength(0);
+            long colCount = data.GetLength(1);
+            for (int i = 0; i < rowCount; i++)
+            {
+                StringBuilder sb = new StringBuilder();
+                for (int j = 0; j < colCount; j++)
+                {
+                    sb.Append(data[i, j]).Append(",");
+                }
+                lines.Add(sb.ToString().TrimEnd(','));
+            }
+
+            return lines.ToArray();
+        }
+
         public Header[] Headers
         {
             get { return headers; }
         }
+
+        public int RowCount
+        {
+            get { return data.GetLength(0); }
+        }
+
+        public int ColCount
+        {
+            get { return data.GetLength(1); }
+        }
+
 
         public string this[int row, int col]
         {
@@ -174,6 +250,18 @@ namespace Clearsky.framework.data
                 data[row, col] = value;
             }
         }
+
+        public int GetColumnIndex(string headerName)
+        {
+            for (int i = 0; i < headers.Length; i++)
+            {
+                if (headers[i].name.Equals(headerName)) return i;
+            }
+
+            LogUtil.Log(LOG_TAG, "No such headerName:" + headerName);
+            return -1;
+        }
+
 
         public int GetInt(int row, int col, int defaultValue = -1)
         {
