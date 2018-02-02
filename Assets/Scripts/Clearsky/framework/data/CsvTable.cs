@@ -15,7 +15,7 @@ using System.Text;
 
 namespace Clearsky.framework.data
 {
-    public class CsvTable
+    public class CsvTable 
     {
 
         #region useful shotcut

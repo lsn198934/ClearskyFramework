@@ -19,11 +19,11 @@ public class TestCase : MonoBehaviour {
     {
         if (GUILayout.Button("TestCSV")) 
         {
-            Debug.Log(System.DateTime.Now.Millisecond);
+            LogUtil.Log(System.DateTime.Now.Millisecond);
             CsvTable table = CsvTable.FromFile(GlobalConfig.GAME_DATA_PATH + "/Instance.csv");
-            Debug.Log(System.DateTime.Now.Millisecond);
+            LogUtil.Log(System.DateTime.Now.Millisecond);
             int index=table.GetColumnIndex("ID");
-            Debug.LogWarning(index);
+            LogUtil.LogWarning("index",index);
 
             CsvTable.SaveFile(table, GlobalConfig.GAME_DATA_PATH + "/Instances.csv");
             
