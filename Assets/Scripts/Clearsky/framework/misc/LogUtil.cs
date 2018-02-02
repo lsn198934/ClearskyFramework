@@ -8,16 +8,16 @@ public class LogUtil
 #if UNITY_EDITOR
     static bool ENABLE_LOG = true;
     static bool ENABLE_MORE_LOG = true;
-    static bool ENABLE_SCREEN_LOG = false;
+//    static bool ENABLE_SCREEN_LOG = false;
 #else
 #if DEBUG_BUILD
     static bool ENABLE_LOG = true;
     static bool ENABLE_MORE_LOG = true;
-    static bool ENABLE_SCREEN_LOG = true;
+//    static bool ENABLE_SCREEN_LOG = true;
 #else 
     static bool ENABLE_LOG = false;
     static bool ENABLE_MORE_LOG = false; 
-    static bool ENABLE_SCREEN_LOG = false;
+//    static bool ENABLE_SCREEN_LOG = false;
 #endif
 #endif
 
